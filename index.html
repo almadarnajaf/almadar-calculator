@@ -1,0 +1,2254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حاسبة مركز المدار للبطاريات</title>
+  <style>
+    :root{
+      --bg:#f3f6f9;
+      --card:#ffffff;
+      --line:#d8e0e8;
+      --text:#17212b;
+      --muted:#66788a;
+      --primary:#0f766e;
+      --primary-2:#115e59;
+      --secondary:#334155;
+      --danger:#b91c1c;
+      --warn:#b45309;
+      --ok:#166534;
+      --info:#1d4ed8;
+      --shadow:0 10px 28px rgba(15,23,42,.08);
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Tahoma, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    .container{
+      width:min(1600px,95%);
+      margin:18px auto 40px;
+    }
+
+    .app-header{
+      background:linear-gradient(135deg,#0f766e,#134e4a);
+      color:#fff;
+      padding:24px;
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .logo-box{
+      width:72px;
+      height:72px;
+      border-radius:18px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      font-weight:bold;
+    }
+
+    .brand-text h1{
+      margin:0 0 8px;
+      font-size:30px;
+    }
+
+    .brand-text p{
+      margin:0;
+      line-height:1.8;
+      opacity:.95;
+    }
+
+    .page-tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+
+    .page-tab,.sub-tab,.btn{
+      border:none;
+      border-radius:12px;
+      padding:11px 16px;
+      cursor:pointer;
+      font-size:15px;
+      transition:.2s;
+    }
+
+    .page-tab,.sub-tab{
+      background:#e2e8f0;
+      color:#0f172a;
+      font-weight:bold;
+    }
+
+    .page-tab.active,.sub-tab.active{
+      background:var(--primary);
+      color:#fff;
+    }
+
+    .btn{
+      background:var(--primary);
+      color:#fff;
+      font-weight:bold;
+    }
+
+    .btn:hover{background:var(--primary-2)}
+    .btn.secondary{background:var(--secondary)}
+    .btn.light{background:#e2e8f0;color:#0f172a}
+    .btn.danger{background:var(--danger)}
+    .btn.info{background:var(--info)}
+    .btn.warn{background:var(--warn)}
+
+    .page{display:none}
+    .page.active{display:block}
+
+    .layout{
+      display:grid;
+      grid-template-columns:1.12fr .88fr;
+      gap:18px;
+    }
+
+    @media (max-width:1150px){
+      .layout{grid-template-columns:1fr}
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .card-head{
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      background:#f8fafc;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .card-head h2{
+      margin:0;
+      font-size:20px;
+    }
+
+    .card-body{
+      padding:18px;
+    }
+
+    .section{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:14px;
+      margin-bottom:14px;
+    }
+
+    .section h3{
+      margin:0 0 12px;
+      font-size:17px;
+    }
+
+    .fields{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .fields.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+    @media (max-width:900px){
+      .fields,.fields.three,.fields.four{grid-template-columns:1fr}
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    .field label{
+      font-size:14px;
+      font-weight:bold;
+      color:#334155;
+    }
+
+    input,select,textarea{
+      width:100%;
+      border:1px solid #cbd5e1;
+      background:#fff;
+      border-radius:12px;
+      padding:12px 13px;
+      font-size:15px;
+      outline:none;
+    }
+
+    input:focus,select:focus,textarea:focus{
+      border-color:#0f766e;
+      box-shadow:0 0 0 3px rgba(15,118,110,.12);
+    }
+
+    textarea{
+      min-height:90px;
+      resize:vertical;
+    }
+
+    .check-row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-top:8px;
+    }
+
+    .check{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid var(--line);
+      background:#f8fafc;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+
+    .check input{
+      width:auto;
+      margin:0;
+    }
+
+    .hidden{display:none !important}
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+
+    .result-top{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    @media (max-width:900px){
+      .result-top{grid-template-columns:1fr}
+    }
+
+    .stat{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+      background:#f8fafc;
+    }
+
+    .stat .label{
+      color:var(--muted);
+      font-size:14px;
+      margin-bottom:8px;
+    }
+
+    .stat .value{
+      font-size:24px;
+      font-weight:bold;
+    }
+
+    .stat .cost{color:#0f766e}
+    .stat .sale{color:#166534}
+    .stat .profit{color:#7c2d12}
+
+    .notice{
+      border-radius:14px;
+      padding:12px 14px;
+      margin-bottom:10px;
+      line-height:1.8;
+      border:1px solid transparent;
+    }
+
+    .notice.warn{background:#fff7ed;color:#9a3412;border-color:#fed7aa}
+    .notice.error{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+    .notice.ok{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
+    .notice.info{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+
+    .pills{margin-bottom:10px}
+    .pill{
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:999px;
+      background:#e2e8f0;
+      font-size:12px;
+      margin:0 0 6px 6px;
+    }
+
+    .breakdown{
+      width:100%;
+      border-collapse:collapse;
+      font-size:14px;
+    }
+
+    .breakdown th,.breakdown td{
+      border:1px solid var(--line);
+      padding:10px;
+      text-align:right;
+      vertical-align:top;
+    }
+
+    .breakdown th{background:#f8fafc}
+
+    .footer-note{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.8;
+    }
+
+    .inline{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .history-tools,.db-tools{
+      display:grid;
+      grid-template-columns:1fr auto auto auto;
+      gap:10px;
+      margin-bottom:12px;
+    }
+
+    @media (max-width:800px){
+      .history-tools,.db-tools{grid-template-columns:1fr}
+    }
+
+    .history-list,.db-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-height:650px;
+      overflow:auto;
+      padding-right:2px;
+    }
+
+    .history-item,.db-item{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:12px;
+    }
+
+    .history-item h4,.db-item h4{
+      margin:0 0 8px;
+      font-size:15px;
+    }
+
+    .history-meta,.db-meta{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.8;
+      margin-bottom:10px;
+    }
+
+    .history-actions,.db-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .empty-box{
+      border:1px dashed var(--line);
+      border-radius:14px;
+      padding:16px;
+      color:var(--muted);
+      background:#f8fafc;
+    }
+
+    .result-box{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      background:#fff;
+    }
+
+    .small-muted{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.8;
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:999;
+    }
+
+    .modal-backdrop.show{display:flex}
+
+    .modal{
+      width:min(820px,100%);
+      max-height:90vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:22px;
+      box-shadow:0 20px 60px rgba(0,0,0,.25);
+      border:1px solid var(--line);
+    }
+
+    .modal-head{
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      background:#f8fafc;
+      position:sticky;
+      top:0;
+      z-index:2;
+    }
+
+    .modal-head h3{
+      margin:0;
+      font-size:19px;
+    }
+
+    .modal-body{padding:18px}
+
+    .code-box{
+      width:100%;
+      min-height:220px;
+      font-family:monospace;
+      direction:ltr;
+      text-align:left;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="app-header">
+      <div class="brand">
+        <div class="logo-box">ال</div>
+        <div class="brand-text">
+          <h1>حاسبة مركز المدار للبطاريات</h1>
+          <p>نسخة كاملة مع تعديل نسب الربح من داخل الصفحة، وإدارة الأسعار، وسجل العمليات، والنسخ الاحتياطي.</p>
+        </div>
+      </div>
+
+      <div class="page-tabs">
+        <button class="page-tab active" data-page="calculatorPage">الحاسبة</button>
+        <button class="page-tab" data-page="databasePage">إدارة الأسعار وقاعدة البيانات</button>
+        <button class="page-tab" data-page="historyPage">سجل العمليات والنسخ الاحتياطي</button>
+      </div>
+    </div>
+
+    <div class="page active" id="calculatorPage">
+      <div class="layout">
+        <div class="card">
+          <div class="card-head">
+            <h2>بيانات العملية</h2>
+            <div class="inline">
+              <button class="sub-tab active" data-mode="assembly">تجميع بطارية جديدة</button>
+              <button class="sub-tab" data-mode="maintenance">صيانة بطارية</button>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div id="assemblyForm">
+              <div class="section">
+                <h3>معلومات أساسية</h3>
+                <div class="fields">
+                  <div class="field">
+                    <label>نوع الجهاز</label>
+                    <select id="a_device"></select>
+                  </div>
+                  <div class="field">
+                    <label>اسم البطارية / وصف</label>
+                    <input id="a_name" type="text" placeholder="مثال: بطارية دراجة 48V 20Ah">
+                  </div>
+                  <div class="field">
+                    <label>الكيمياء</label>
+                    <select id="a_chem">
+                      <option value="Li-ion">Li-ion</option>
+                      <option value="LiFePO4">LiFePO4</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>الفولت المطلوب</label>
+                    <input id="a_voltage" type="number" min="1" step="0.1" placeholder="48">
+                  </div>
+                  <div class="field">
+                    <label>السعة المطلوبة Ah</label>
+                    <input id="a_capacity" type="number" min="0.1" step="0.1" placeholder="20">
+                  </div>
+                  <div class="field">
+                    <label>التيار المطلوب A</label>
+                    <input id="a_current" type="number" min="1" step="1" placeholder="40">
+                  </div>
+                  <div class="field">
+                    <label>التصنيف الحجمي</label>
+                    <select id="a_size">
+                      <option value="auto">تلقائي</option>
+                      <option value="small">صغيرة</option>
+                      <option value="medium">متوسطة</option>
+                      <option value="large">كبيرة</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>نوع الخلية</label>
+                    <select id="a_cell"></select>
+                  </div>
+                </div>
+
+                <div class="check-row">
+                  <label class="check"><input id="a_warranty" type="checkbox"> مع ضمان</label>
+                  <label class="check"><input id="a_smartBms" type="checkbox"> تفضيل BMS ذكي</label>
+                  <label class="check"><input id="a_useSpacers" type="checkbox" checked> استخدام حوامل</label>
+                  <label class="check"><input id="a_useEpoxy" type="checkbox"> استخدام لوح إيبوكسي</label>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3>تعديل يدوي للمواد</h3>
+                <div class="fields three">
+                  <div class="field">
+                    <label>النيكل</label>
+                    <select id="a_manualNickel"></select>
+                  </div>
+                  <div class="field">
+                    <label>السلك</label>
+                    <select id="a_manualWire"></select>
+                  </div>
+                  <div class="field">
+                    <label>الكونكتور</label>
+                    <select id="a_manualConnector"></select>
+                  </div>
+                  <div class="field">
+                    <label>ورق العزل</label>
+                    <select id="a_manualInsulation"></select>
+                  </div>
+                  <div class="field">
+                    <label>الشرنك</label>
+                    <select id="a_manualShrink"></select>
+                  </div>
+                  <div class="field">
+                    <label>الحامل</label>
+                    <select id="a_manualSpacer"></select>
+                  </div>
+                  <div class="field">
+                    <label>الإيبوكسي</label>
+                    <select id="a_manualEpoxy"></select>
+                  </div>
+                  <div class="field">
+                    <label>BMS</label>
+                    <select id="a_manualBms"></select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3>ملاحظات</h3>
+                <textarea id="a_notes" placeholder="أي ملاحظات إضافية..."></textarea>
+              </div>
+
+              <div class="actions">
+                <button class="btn" id="assemblyCalcBtn">احسب تكلفة التجميع</button>
+                <button class="btn secondary" id="saveAssemblyBtn" type="button">احفظ العملية الحالية</button>
+                <button class="btn light" id="assemblyResetBtn" type="button">مسح الحقول</button>
+              </div>
+            </div>
+
+            <div id="maintenanceForm" class="hidden">
+              <div class="section">
+                <h3>معلومات البطارية</h3>
+                <div class="fields">
+                  <div class="field">
+                    <label>نوع الجهاز</label>
+                    <select id="m_device"></select>
+                  </div>
+                  <div class="field">
+                    <label>اسم البطارية / وصف</label>
+                    <input id="m_name" type="text" placeholder="مثال: صيانة بطارية سكوتر 48V">
+                  </div>
+                  <div class="field">
+                    <label>الكيمياء</label>
+                    <select id="m_chem">
+                      <option value="Li-ion">Li-ion</option>
+                      <option value="LiFePO4">LiFePO4</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>الفولت</label>
+                    <input id="m_voltage" type="number" min="1" step="0.1" placeholder="48">
+                  </div>
+                  <div class="field">
+                    <label>السعة Ah للمقارنة مع الجديد</label>
+                    <input id="m_capacity" type="number" min="0.1" step="0.1" placeholder="20">
+                  </div>
+                  <div class="field">
+                    <label>التيار A للمقارنة مع الجديد</label>
+                    <input id="m_current" type="number" min="1" step="1" placeholder="40">
+                  </div>
+                  <div class="field">
+                    <label>التصنيف الحجمي</label>
+                    <select id="m_size">
+                      <option value="auto">تلقائي</option>
+                      <option value="small">صغيرة</option>
+                      <option value="medium">متوسطة</option>
+                      <option value="large">كبيرة</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>مستوى المخاطرة</label>
+                    <select id="m_risk">
+                      <option value="low">منخفضة</option>
+                      <option value="medium">متوسطة</option>
+                      <option value="high">عالية</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="check-row">
+                  <label class="check"><input id="m_customerApproved" type="checkbox" checked> الزبون وافق على الصيانة</label>
+                  <label class="check"><input id="m_warranty" type="checkbox"> مع ضمان</label>
+                  <label class="check"><input id="m_compareNew" type="checkbox" checked> قارن مع بطارية جديدة مماثلة</label>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3>تفاصيل الصيانة</h3>
+                <div class="fields three">
+                  <div class="field">
+                    <label>عدد الخلايا التالفة</label>
+                    <input id="m_badCellsCount" type="number" min="0" step="1" value="0">
+                  </div>
+                  <div class="field">
+                    <label>نوع الخلية البديلة</label>
+                    <select id="m_badCellType"></select>
+                  </div>
+                  <div class="field">
+                    <label>نوع BMS البديل</label>
+                    <select id="m_bmsType"></select>
+                  </div>
+                </div>
+
+                <div class="check-row">
+                  <label class="check"><input id="m_replaceBms" type="checkbox"> تبديل BMS</label>
+                  <label class="check"><input id="m_fullReweld" type="checkbox"> إعادة تلحيم كامل</label>
+                  <label class="check"><input id="m_openClose" type="checkbox"> فتح وإغلاق</label>
+                  <label class="check"><input id="m_rewrap" type="checkbox"> إعادة ترتيب وتغليف</label>
+                  <label class="check"><input id="m_programJK" type="checkbox"> برمجة / إعداد BMS ذكي</label>
+                  <label class="check"><input id="m_cleaning" type="checkbox"> تنظيف / ترميم بسيط</label>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3>مقارنة مع بطارية جديدة</h3>
+                <div class="fields three">
+                  <div class="field">
+                    <label>نوع الخلية في البطارية الجديدة</label>
+                    <select id="m_compareCell"></select>
+                  </div>
+                  <div class="field">
+                    <label>تفضيل BMS ذكي في الجديدة</label>
+                    <select id="m_compareSmart">
+                      <option value="0">لا</option>
+                      <option value="1">نعم</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label>استخدام إيبوكسي في الجديدة</label>
+                    <select id="m_compareEpoxy">
+                      <option value="0">لا</option>
+                      <option value="1">نعم</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="section">
+                <h3>ملاحظات</h3>
+                <textarea id="m_notes" placeholder="أي ملاحظات إضافية..."></textarea>
+              </div>
+
+              <div class="actions">
+                <button class="btn" id="maintenanceCalcBtn">احسب تكلفة الصيانة</button>
+                <button class="btn secondary" id="saveMaintenanceBtn" type="button">احفظ العملية الحالية</button>
+                <button class="btn light" id="maintenanceResetBtn" type="button">مسح الحقول</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>النتيجة</h2>
+            <div class="inline">
+              <button class="btn info" id="exportImageBtn" type="button">تصدير كصورة</button>
+              <button class="btn light" id="clearResultBtn" type="button">مسح النتيجة</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="resultCapture" class="result-box">
+              <div class="result-top">
+                <div class="stat">
+                  <div class="label">سعر التكلفة</div>
+                  <div class="value cost" id="costValue">0 د.ع</div>
+                </div>
+                <div class="stat">
+                  <div class="label">سعر البيع</div>
+                  <div class="value sale" id="saleValue">0 د.ع</div>
+                </div>
+                <div class="stat">
+                  <div class="label">الربح</div>
+                  <div class="value profit" id="profitValue">0 د.ع</div>
+                </div>
+              </div>
+
+              <div id="notices"></div>
+              <div id="summaryPills" class="pills"></div>
+              <div id="resultTitle" style="font-weight:bold;font-size:18px;margin:10px 0 14px">لا توجد نتيجة بعد</div>
+              <div id="resultTableWrap"></div>
+              <div class="footer-note">جميع الأسعار بالدينار العراقي.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="databasePage">
+      <div class="card">
+        <div class="card-head">
+          <h2>إدارة الأسعار وقاعدة البيانات</h2>
+          <div class="inline">
+            <button class="btn info" id="openDbManagerBtn" type="button">فتح نافذة التعديل</button>
+            <button class="btn warn" id="resetDbBtn" type="button">إعادة الأسعار الأصلية</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="db-tools">
+            <input id="dbSearch" type="text" placeholder="ابحث عن مادة أو خلية أو BMS...">
+            <button class="btn light" id="refreshDbBtn" type="button">تحديث</button>
+            <button class="btn secondary" id="openDbManagerBtn2" type="button">فتح الإدارة</button>
+            <button class="btn info" id="exportDbDirectBtn" type="button">تصدير قاعدة الأسعار</button>
+          </div>
+
+          <div id="dbSummary" class="small-muted" style="margin-bottom:12px"></div>
+          <div id="dbList" class="db-list"></div>
+
+          <div class="section" style="margin-top:14px">
+            <h3>إدارة نسب الربح</h3>
+
+            <div class="fields">
+              <div class="field">
+                <label>نوع جدول الربح</label>
+                <select id="profitModeSelect">
+                  <option value="assembly">ربح التجميع</option>
+                  <option value="maintenance">ربح الصيانة</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="profitRulesEditor" style="margin-top:12px"></div>
+
+            <div class="actions">
+              <button class="btn" id="saveProfitRulesBtn" type="button">حفظ نسب الربح</button>
+              <button class="btn light" id="reloadProfitRulesBtn" type="button">إعادة تحميل الجدول</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="historyPage">
+      <div class="card">
+        <div class="card-head">
+          <h2>سجل العمليات والنسخ الاحتياطي</h2>
+        </div>
+        <div class="card-body">
+          <div class="history-tools">
+            <input id="historySearch" type="text" placeholder="ابحث بالاسم أو النوع أو الوضع...">
+            <button class="btn light" id="refreshHistoryBtn" type="button">تحديث</button>
+            <button class="btn info" id="exportBackupBtn" type="button">تصدير JSON</button>
+            <button class="btn secondary" id="importBackupBtn" type="button">استيراد JSON</button>
+          </div>
+
+          <div class="actions" style="margin-top:0;margin-bottom:12px">
+            <button class="btn danger" id="clearHistoryBtn" type="button">حذف سجل العمليات</button>
+            <input id="backupFileInput" type="file" accept=".json,application/json" class="hidden">
+          </div>
+
+          <div id="historyList" class="history-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="dbModalBackdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>إدارة الأسعار</h3>
+        <div class="inline">
+          <button class="btn light" id="closeDbModalBtn" type="button">إغلاق</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="section">
+          <h3>تعديل مباشر</h3>
+          <div class="fields three">
+            <div class="field">
+              <label>القسم</label>
+              <select id="dbCategorySelect"></select>
+            </div>
+            <div class="field">
+              <label>العنصر</label>
+              <select id="dbItemSelect"></select>
+            </div>
+            <div class="field">
+              <label>السعر الجديد</label>
+              <input id="dbNewPrice" type="number" min="0" step="1" placeholder="أدخل السعر">
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn" id="saveDbPriceBtn" type="button">حفظ السعر</button>
+            <button class="btn light" id="loadDbItemPriceBtn" type="button">جلب السعر الحالي</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>معلومات العنصر</h3>
+          <div id="dbItemInfo" class="small-muted">اختر قسمًا وعنصرًا لعرض المعلومات.</div>
+        </div>
+
+        <div class="section">
+          <h3>نسخة JSON لقاعدة الأسعار</h3>
+          <textarea id="dbJsonBox" class="code-box" spellcheck="false"></textarea>
+          <div class="actions">
+            <button class="btn info" id="exportDbJsonBtn" type="button">تصدير أسعار JSON</button>
+            <button class="btn secondary" id="importDbJsonBtn" type="button">استيراد أسعار JSON</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    const STORAGE_KEY = "almadar_battery_history_v6";
+    const DB_STORAGE_KEY = "almadar_battery_db_v6";
+
+    const DEFAULT_DB = {
+      workshopName: "مركز المدار",
+      currency: "الدينار العراقي",
+      rounding: 1000,
+      minProfit: 5000,
+      minServicePrice: 5000,
+      scrapCells: 0,
+      scrapMaterials: 0.05,
+
+      warrantyBySize: { small:3000, medium:5000, large:10000 },
+      riskByLevel: { low:3000, medium:6000, high:9000 },
+
+      assemblyProfitRules: [
+        { min: 0, max: 50000, pct: 1.00 },
+        { min: 50001, max: 100000, pct: 0.45 },
+        { min: 100001, max: 150000, pct: 0.45 },
+        { min: 150001, max: 200000, pct: 0.40 },
+        { min: 200001, max: 300000, pct: 0.35 },
+        { min: 300001, max: 400000, pct: 0.30 },
+        { min: 400001, max: Infinity, pct: 0.25 }
+      ],
+
+      maintenanceProfitRules: [
+        { min:0, max:50000, pct:1.00 },
+        { min:50001, max:100000, pct:0.80 },
+        { min:100001, max:200000, pct:0.50 },
+        { min:200001, max:Infinity, pct:0.40 }
+      ],
+
+      diagnosisLabor: { small:5000, medium:7000, large:10000 },
+      replaceCellLabor: { small:2000, medium:2500, large:3000 },
+      replaceBmsLabor: { small:7000, medium:10000, large:15000, smart:20000 },
+      reweldLabor: { small:10000, medium:15000, large:20000 },
+      openCloseLabor: { small:3000, medium:5000, large:7000 },
+      rewrapLabor: { small:5000, medium:7000, large:10000 },
+      programJKLabor: { small:5000, medium:7000, large:10000 },
+      cleaningLabor: { small:3000, medium:5000, large:7000 },
+
+      cells: [
+        { id:"cell1", name:"Molicel INR 2600mAh", chemistry:"Li-ion", size:"18650", capacityAh:2.6, nominalV:3.6, maxCurrentA:26, price:2500, condition:"جديدة" },
+        { id:"cell2", name:"Watani ICR 1500mAh", chemistry:"Li-ion", size:"18650", capacityAh:1.5, nominalV:3.6, maxCurrentA:0.75, price:1100, condition:"جديدة" },
+        { id:"cell3", name:"SWY ICR 2000mAh", chemistry:"Li-ion", size:"18650", capacityAh:2.0, nominalV:3.6, maxCurrentA:20, price:1500, condition:"جديدة" },
+        { id:"cell4", name:"EVE ICR 2000mAh", chemistry:"Li-ion", size:"18650", capacityAh:2.0, nominalV:3.6, maxCurrentA:30, price:1750, condition:"جديدة" },
+        { id:"cell5", name:"Tipsun 6500mAh", chemistry:"LiFePO4", size:"32700", capacityAh:6.5, nominalV:3.2, maxCurrentA:19.5, price:3000, condition:"جديدة" },
+        { id:"cell6", name:"Tipsun 15000mAh", chemistry:"LiFePO4", size:"33140", capacityAh:15, nominalV:3.2, maxCurrentA:45, price:6000, condition:"جديدة" },
+        { id:"cell7", name:"26700 4500mAh", chemistry:"LiFePO4", size:"26700", capacityAh:4.5, nominalV:3.2, maxCurrentA:13.5, price:2000, condition:"مستعملة" },
+        { id:"cell8", name:"26700 5000mAh", chemistry:"LiFePO4", size:"26700", capacityAh:5.0, nominalV:3.2, maxCurrentA:15, price:2000, condition:"مستعملة" }
+      ],
+
+      bms: [
+        { id:"bms1", name:"JK BMS Smart 8-20S 40A", chemistry:["Li-ion","LiFePO4"], type:"smart", sMin:8, sMax:20, currentA:40, features:"Active Balance + Bluetooth", price:40000 },
+        { id:"bms2", name:"JK BMS Smart 8-24S 40A", chemistry:["Li-ion","LiFePO4"], type:"smart", sMin:8, sMax:24, currentA:40, features:"Active Balance + Bluetooth", price:42000 },
+        { id:"bms3", name:"JK BMS Smart 8-24S 80A", chemistry:["Li-ion","LiFePO4"], type:"smart", sMin:8, sMax:24, currentA:80, features:"Active Balance + Bluetooth", price:60000 },
+        { id:"bms4", name:"BMS 13S 30-60A", chemistry:["Li-ion"], type:"normal", sMin:13, sMax:13, currentA:60, features:"with balance", price:16500 },
+        { id:"bms5", name:"BMS 5S 100A", chemistry:["Li-ion"], type:"normal", sMin:5, sMax:5, currentA:100, features:"with balance", price:8000 },
+        { id:"bms6", name:"BMS 5S 15A", chemistry:["Li-ion"], type:"normal", sMin:5, sMax:5, currentA:15, features:"عادي", price:4000 },
+        { id:"bms7", name:"BMS 7S 30A 24V", chemistry:["Li-ion"], type:"normal", sMin:7, sMax:7, currentA:30, features:"عادي", price:9000 },
+        { id:"bms8", name:"ANT BMS 32S 80A Smart", chemistry:["Li-ion","LiFePO4"], type:"smart", sMin:32, sMax:32, currentA:80, features:"Active Balance 0.3A + Bluetooth", price:100000, specialOver72:true }
+      ],
+
+      nickel: [
+        { id:"nickel1", name:"Nickel plated 0.1mm single", thickness:"0.1mm", type:"single", pricePerM:250 },
+        { id:"nickel2", name:"Nickel plated 0.1mm dual", thickness:"0.1mm", type:"dual", pricePerM:500 },
+        { id:"nickel3", name:"Nickel plated 0.15mm single", thickness:"0.15mm", type:"single", pricePerM:1000 },
+        { id:"nickel4", name:"Nickel plated 0.2mm dual", thickness:"0.2mm", type:"dual", pricePerM:2000 }
+      ],
+
+      insulation: [
+        { id:"ins1", name:"Adhesive insulation paper 60mm", width:"60mm", pricePerM:750 },
+        { id:"ins2", name:"Adhesive insulation paper 120mm", width:"120mm", pricePerM:1500 },
+        { id:"ins3", name:"Adhesive insulation paper 65mm", width:"65mm", pricePerM:750 }
+      ],
+
+      shrink: [
+        { id:"sh1", name:"PVC heat shrink tube 30mm", width:"30mm", pricePerM:250 },
+        { id:"sh2", name:"PVC heat shrink tube 450mm", width:"450mm", pricePerM:4250 },
+        { id:"sh3", name:"PVC heat shrink tube 400mm", width:"400mm", pricePerM:4000 },
+        { id:"sh4", name:"PVC heat shrink tube 340mm", width:"340mm", pricePerM:3500 },
+        { id:"sh5", name:"PVC heat shrink tube 190mm", width:"190mm", pricePerM:2000 },
+        { id:"sh6", name:"PVC heat shrink tube 500mm", width:"500mm", pricePerM:4750 },
+        { id:"sh7", name:"PVC heat shrink tube 600mm", width:"600mm", pricePerM:6000 },
+        { id:"sh8", name:"PVC heat shrink tube 300mm", width:"300mm", pricePerM:3250 },
+        { id:"sh9", name:"PVC heat shrink tube 240mm", width:"240mm", pricePerM:2500 },
+        { id:"sh10", name:"PVC heat shrink tube 280mm", width:"280mm", pricePerM:3000 },
+        { id:"sh11", name:"PVC heat shrink tube 220mm", width:"220mm", pricePerM:2500 },
+        { id:"sh12", name:"PVC heat shrink tube 90mm", width:"90mm", pricePerM:1250 },
+        { id:"sh13", name:"PVC heat shrink tube 550mm", width:"550mm", pricePerM:5500 },
+        { id:"sh14", name:"PVC heat shrink tube 85mm", width:"85mm", pricePerM:1000 },
+        { id:"sh15", name:"PVC heat shrink tube 260mm", width:"260mm", pricePerM:2750 },
+        { id:"sh16", name:"PVC heat shrink tube 50mm", width:"50mm", pricePerM:500 },
+        { id:"sh17", name:"PVC heat shrink tube 120mm", width:"120mm", pricePerM:1500 }
+      ],
+
+      wires: [
+        { id:"wire1", name:"Silicone wire 14AWG", gauge:"14AWG", pricePerM:1250 },
+        { id:"wire2", name:"Silicone wire 12AWG", gauge:"12AWG", pricePerM:2000 },
+        { id:"wire3", name:"Silicone wire 10AWG", gauge:"10AWG", pricePerM:3000 },
+        { id:"wire4", name:"Silicone wire 8AWG", gauge:"8AWG", pricePerM:4250 },
+        { id:"wire5", name:"Silicone wire 2AWG", gauge:"2AWG", pricePerM:18000 }
+      ],
+
+      connectors: [
+        { id:"con1", name:"XT60", unit:"2pcs", price:1000 },
+        { id:"con2", name:"XT90", unit:"2pcs", price:2500 }
+      ],
+
+      spacers: [
+        { id:"sp1", name:"18650 spacer holder 1 cell", cellSize:"18650", cells:1, price:125 },
+        { id:"sp2", name:"18650 spacer holder 2 cell", cellSize:"18650", cells:2, price:250 },
+        { id:"sp3", name:"18650 spacer holder 3 cell", cellSize:"18650", cells:3, price:250 },
+        { id:"sp4", name:"33140 spacer holder 2 cell", cellSize:"33140", cells:2, price:250 },
+        { id:"sp5", name:"32700 spacer holder 3 cell", cellSize:"32700", cells:3, price:350 },
+        { id:"sp6", name:"33140 spacer holder 3 cell", cellSize:"33140", cells:3, price:350 },
+        { id:"sp7", name:"32700 spacer holder 6 cell", cellSize:"32700", cells:6, price:500 },
+        { id:"sp8", name:"18650 spacer holder 20 cell", cellSize:"18650", cells:20, price:500 },
+        { id:"sp9", name:"18650 spacer holder 18 cell", cellSize:"18650", cells:18, price:500 },
+        { id:"sp10", name:"18650 spacer holder 15 cell", cellSize:"18650", cells:15, price:500 },
+        { id:"sp11", name:"18650 spacer holder 21 cell", cellSize:"18650", cells:21, price:500 },
+        { id:"sp12", name:"32700 spacer holder 20 cell", cellSize:"32700", cells:20, price:1000 },
+        { id:"sp13", name:"33140 spacer holder 10 cell", cellSize:"33140", cells:10, price:1250 }
+      ],
+
+      epoxy: [
+        { id:"ep1", name:"Epoxy sheet 0.5mm 50×50cm", thickness:"0.5mm", price:2500 },
+        { id:"ep2", name:"Epoxy sheet 1mm 50×50cm", thickness:"1mm", price:4000 },
+        { id:"ep3", name:"Epoxy sheet 1.5mm 50×50cm", thickness:"1.5mm", price:5000 }
+      ],
+
+      devices: [
+        { value:"drill", label:"بطارية دريل شحن", size:"small" },
+        { value:"screwdriver", label:"بطارية مفك براغي", size:"small" },
+        { value:"light", label:"بطارية إنارة", size:"small" },
+        { value:"scooter", label:"بطارية سكوتر", size:"large" },
+        { value:"bike", label:"بطارية دراجة", size:"large" },
+        { value:"toycar_small", label:"بطارية سيارات صغيرة ريمونت", size:"medium" },
+        { value:"toycar_medium", label:"بطاريات سيارة متوسطة للأطفال", size:"medium" },
+        { value:"ups", label:"بطارية UPS", size:"medium" },
+        { value:"inverter", label:"بطارية عاكسة", size:"large" },
+        { value:"mobility", label:"بطارية عربات ذوي الاحتياجات الخاصة", size:"large" }
+      ]
+    };
+
+    let DB = loadDB();
+    let lastResult = null;
+    let currentMode = "assembly";
+
+    if (!DB.assemblyProfitRules) DB.assemblyProfitRules = JSON.parse(JSON.stringify(DEFAULT_DB.assemblyProfitRules));
+    if (!DB.maintenanceProfitRules) DB.maintenanceProfitRules = JSON.parse(JSON.stringify(DEFAULT_DB.maintenanceProfitRules));
+
+    const pageTabs = document.querySelectorAll(".page-tab");
+    const subTabs = document.querySelectorAll(".sub-tab");
+
+    const noticesEl = document.getElementById("notices");
+    const resultTitleEl = document.getElementById("resultTitle");
+    const resultTableWrapEl = document.getElementById("resultTableWrap");
+    const summaryPillsEl = document.getElementById("summaryPills");
+    const costValueEl = document.getElementById("costValue");
+    const saleValueEl = document.getElementById("saleValue");
+    const profitValueEl = document.getElementById("profitValue");
+
+    function deepClone(obj){
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function loadDB(){
+      try{
+        const saved = localStorage.getItem(DB_STORAGE_KEY);
+        if(!saved) return deepClone(DEFAULT_DB);
+        return JSON.parse(saved);
+      }catch{
+        return deepClone(DEFAULT_DB);
+      }
+    }
+
+    function saveDB(){
+      localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(DB));
+    }
+
+    function fmt(n){
+      return `${Math.round(Number(n || 0)).toLocaleString("en-US")} د.ع`;
+    }
+
+    function roundTo(value, step = DB.rounding){
+      return Math.round(value / step) * step;
+    }
+
+    function getProfitPct(cost, mode = "assembly"){
+      const rules = mode === "maintenance"
+        ? DB.maintenanceProfitRules
+        : DB.assemblyProfitRules;
+
+      const exactRule = rules.find(r => cost >= r.min && cost <= r.max);
+      if (exactRule) return exactRule.pct;
+
+      const sortedRules = [...rules].sort((a,b) => a.min - b.min);
+      const lastRule = sortedRules[sortedRules.length - 1];
+      return lastRule ? lastRule.pct : 0;
+    }
+
+    function getProfitRulesByMode(mode){
+      return mode === "maintenance"
+        ? DB.maintenanceProfitRules
+        : DB.assemblyProfitRules;
+    }
+
+    function sizeLabel(size){
+      return size === "small" ? "صغيرة" : size === "medium" ? "متوسطة" : "كبيرة";
+    }
+
+    function riskLabel(risk){
+      return risk === "low" ? "منخفضة" : risk === "medium" ? "متوسطة" : "عالية";
+    }
+
+    function getDeviceLabel(value){
+      return DB.devices.find(d => d.value === value)?.label || "-";
+    }
+
+    function getDeviceSize(value){
+      return DB.devices.find(d => d.value === value)?.size || null;
+    }
+
+    function inferSizeFromWh(wh){
+      if (wh <= 150) return "small";
+      if (wh <= 500) return "medium";
+      return "large";
+    }
+
+    function resolveSize(manualSize, device, voltage, capacity){
+      if (manualSize && manualSize !== "auto") return manualSize;
+      const deviceSize = getDeviceSize(device);
+      if (deviceSize) return deviceSize;
+      return inferSizeFromWh(Number(voltage || 0) * Number(capacity || 0));
+    }
+
+    function chemistryCompatible(bms, chemistry){
+      return bms && bms.chemistry.includes(chemistry);
+    }
+
+    function getSelectedById(list, id){
+      return list.find(x => x.id === id) || null;
+    }
+
+    function requirePositive(v){
+      return Number(v) > 0;
+    }
+
+    function setTopNumbers(cost=0, sale=0, profit=0){
+      costValueEl.textContent = fmt(cost);
+      saleValueEl.textContent = fmt(sale);
+      profitValueEl.textContent = fmt(profit);
+    }
+
+    function showNotices(list){
+      noticesEl.innerHTML = (list || []).map(n => `<div class="notice ${n.type}">${n.text}</div>`).join("");
+    }
+
+    function setPills(list){
+      summaryPillsEl.innerHTML = (list || []).map(x => `<span class="pill">${x}</span>`).join("");
+    }
+
+    function renderBreakdown(rows){
+      resultTableWrapEl.innerHTML = `
+        <table class="breakdown">
+          <thead>
+            <tr>
+              <th style="width:35%">البند</th>
+              <th>التفاصيل</th>
+              <th style="width:18%">القيمة</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(rows || []).map(r => `
+              <tr>
+                <td>${r.title}</td>
+                <td>${r.details || "-"}</td>
+                <td>${typeof r.amount === "number" ? fmt(r.amount) : (r.amount || "-")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function clearResult(){
+      lastResult = null;
+      setTopNumbers(0,0,0);
+      showNotices([]);
+      setPills([]);
+      resultTitleEl.textContent = "لا توجد نتيجة بعد";
+      resultTableWrapEl.innerHTML = "";
+    }
+
+    function renderResult(result){
+      if (result.error) {
+        lastResult = null;
+        setTopNumbers(0,0,0);
+        showNotices([{ type:"error", text:result.error }]);
+        setPills([]);
+        resultTitleEl.textContent = "تعذر إكمال العملية";
+        resultTableWrapEl.innerHTML = "";
+        return;
+      }
+
+      lastResult = result;
+      setTopNumbers(result.cost, result.sale, result.profit);
+      showNotices(result.notices || []);
+      setPills(result.pills || []);
+      resultTitleEl.textContent = result.title || "النتيجة";
+      renderBreakdown(result.rows || []);
+    }
+
+    function autoChooseNickel(size, current){
+      if (size === "large" || current > 40) return DB.nickel.find(x => x.id === "nickel4");
+      if (size === "medium" || current > 20) return DB.nickel.find(x => x.id === "nickel3");
+      return DB.nickel.find(x => x.id === "nickel1");
+    }
+
+    function autoChooseWire(size, current){
+      if (current > 100) return DB.wires.find(x => x.gauge === "2AWG");
+      if (size === "large" && current > 50) return DB.wires.find(x => x.gauge === "8AWG");
+      if (size === "large") return DB.wires.find(x => x.gauge === "10AWG");
+      if (size === "medium") return DB.wires.find(x => x.gauge === "12AWG");
+      return DB.wires.find(x => x.gauge === "14AWG");
+    }
+
+    function autoChooseConnector(size, current){
+      if (size === "large" || current > 40) return DB.connectors.find(x => x.name === "XT90");
+      return DB.connectors.find(x => x.name === "XT60");
+    }
+
+    function autoChooseInsulation(size){
+      return size === "small" ? DB.insulation.find(x => x.id === "ins1") : DB.insulation.find(x => x.id === "ins2");
+    }
+
+    function autoChooseEpoxy(size){
+      if (size === "small") return DB.epoxy.find(x => x.thickness === "0.5mm");
+      if (size === "medium") return DB.epoxy.find(x => x.thickness === "1mm");
+      return DB.epoxy.find(x => x.thickness === "1.5mm");
+    }
+
+    function autoChooseShrink(size, totalCells, cellSize){
+      if (cellSize === "18650") {
+        if (totalCells <= 10) return DB.shrink.find(x => x.width === "90mm");
+        if (totalCells <= 20) return DB.shrink.find(x => x.width === "120mm");
+        if (totalCells <= 40) return DB.shrink.find(x => x.width === "190mm");
+        return DB.shrink.find(x => x.width === "240mm");
+      }
+      if (cellSize === "32700") {
+        if (size === "small") return DB.shrink.find(x => x.width === "120mm");
+        if (size === "medium") return DB.shrink.find(x => x.width === "220mm");
+        return DB.shrink.find(x => x.width === "300mm");
+      }
+      if (cellSize === "33140") {
+        if (size === "medium") return DB.shrink.find(x => x.width === "240mm");
+        return DB.shrink.find(x => x.width === "340mm");
+      }
+      return DB.shrink.find(x => x.width === "120mm") || DB.shrink[0];
+    }
+
+    function autoChooseSpacer(cellSize, totalCells){
+      const matches = DB.spacers.filter(x => x.cellSize === cellSize).sort((a,b) => a.cells - b.cells);
+      if (!matches.length) return null;
+      return matches.find(x => x.cells >= totalCells) || matches[matches.length - 1];
+    }
+
+    function autoChooseBms({ chemistry, sCount, current, preferSmart, voltage }){
+      if (Number(voltage) > 72) {
+        return DB.bms.find(x => x.specialOver72) || null;
+      }
+
+      let candidates = DB.bms.filter(b =>
+        chemistryCompatible(b, chemistry) &&
+        sCount >= b.sMin &&
+        sCount <= b.sMax &&
+        b.currentA >= current
+      );
+
+      if (preferSmart) {
+        const smart = candidates.filter(x => x.type === "smart");
+        if (smart.length) candidates = smart;
+      }
+
+      if (!candidates.length) {
+        candidates = DB.bms.filter(b =>
+          chemistryCompatible(b, chemistry) &&
+          sCount >= b.sMin &&
+          sCount <= b.sMax
+        ).sort((a,b)=>a.currentA - b.currentA);
+
+        const higher = candidates.find(x => x.currentA >= current);
+        if (higher) return higher;
+        return candidates[candidates.length - 1] || null;
+      }
+
+      candidates.sort((a,b)=>a.currentA - b.currentA || a.price - b.price);
+      return candidates[0];
+    }
+
+    function estimateNickelMeters(totalCells, size, pCount){
+      let base = totalCells * 0.035;
+      if (size === "medium") base *= 1.2;
+      if (size === "large") base *= 1.4;
+      if (pCount > 3) base *= 1.15;
+      return Math.max(1, Number(base.toFixed(2)));
+    }
+
+    function estimateWireMeters(size){
+      if (size === "small") return 1;
+      if (size === "medium") return 1.5;
+      return 2;
+    }
+
+    function estimateInsulationMeters(size){
+      return size === "large" ? 2 : 1;
+    }
+
+    function estimateShrinkMeters(size){
+      return size === "small" ? 0.5 : 1;
+    }
+
+    function estimateEpoxySheets(size){
+      return size === "large" ? 2 : 1;
+    }
+
+    function estimateSpacerCount(totalCells, spacer){
+      if (!spacer) return 0;
+      return Math.ceil((totalCells * 2) / spacer.cells);
+    }
+
+    function calculateAssembly(input){
+      const notices = [];
+
+      if (!requirePositive(input.voltage)) return { error:"يرجى إدخال الفولت المطلوب بشكل صحيح." };
+      if (!requirePositive(input.capacity)) return { error:"يرجى إدخال السعة المطلوبة Ah بشكل صحيح." };
+      if (!requirePositive(input.current)) return { error:"يرجى إدخال التيار المطلوب A بشكل صحيح." };
+      if (!input.cell) return { error:"يرجى اختيار نوع الخلية." };
+
+      const size = resolveSize(input.size, input.device, input.voltage, input.capacity);
+      const sBase = input.chemistry === "LiFePO4" ? 3.0 : 3.6;
+      const sCount = Math.max(1, Math.round(Number(input.voltage) / sBase));
+      const pCount = Math.max(1, Math.ceil(Number(input.capacity) / Number(input.cell.capacityAh)));
+      const totalCells = sCount * pCount;
+      const packWh = Number(input.voltage) * Number(input.capacity);
+
+      const bms = input.manualBms || autoChooseBms({
+        chemistry: input.chemistry,
+        sCount,
+        current: Number(input.current),
+        preferSmart: input.smartBms,
+        voltage: Number(input.voltage)
+      });
+
+      if (!bms) return { error:"لم يتم العثور على BMS مناسب." };
+      if (!chemistryCompatible(bms, input.chemistry)) return { error:"الـ BMS المختار غير متوافق مع كيمياء البطارية." };
+
+      const nickel = input.manualNickel || autoChooseNickel(size, Number(input.current));
+      const wire = input.manualWire || autoChooseWire(size, Number(input.current));
+      const connector = input.manualConnector || autoChooseConnector(size, Number(input.current));
+      const insulation = input.manualInsulation || autoChooseInsulation(size);
+      const shrink = input.manualShrink || autoChooseShrink(size, totalCells, input.cell.size);
+      const epoxy = input.useEpoxy ? (input.manualEpoxy || autoChooseEpoxy(size)) : null;
+      const spacer = input.useSpacers ? (input.manualSpacer || autoChooseSpacer(input.cell.size, totalCells)) : null;
+
+      if (!nickel || !wire || !connector || !insulation || !shrink) {
+        return { error:"السعر غير مكتمل، يرجى إدخال أو اختيار المواد الناقصة." };
+      }
+
+      const cellCost = totalCells * input.cell.price;
+      const nickelM = estimateNickelMeters(totalCells, size, pCount) * (1 + DB.scrapMaterials);
+      const wireM = estimateWireMeters(size) * (1 + DB.scrapMaterials);
+      const insM = estimateInsulationMeters(size) * (1 + DB.scrapMaterials);
+      const shrinkM = estimateShrinkMeters(size) * (1 + DB.scrapMaterials);
+      const epoxyQty = epoxy ? estimateEpoxySheets(size) : 0;
+      const spacerQty = spacer ? estimateSpacerCount(totalCells, spacer) : 0;
+
+      const nickelCost = nickelM * nickel.pricePerM;
+      const wireCost = wireM * wire.pricePerM;
+      const insCost = insM * insulation.pricePerM;
+      const shrinkCost = shrinkM * shrink.pricePerM;
+      const connectorCost = connector.price;
+      const epoxyCost = epoxy ? epoxyQty * epoxy.price : 0;
+      const spacerCost = spacer ? spacerQty * spacer.price : 0;
+      const bmsCost = bms.price;
+      const warrantyCost = input.warranty ? DB.warrantyBySize[size] : 0;
+
+      const costBeforeProfit =
+        cellCost + nickelCost + wireCost + insCost + shrinkCost +
+        connectorCost + epoxyCost + spacerCost + bmsCost + warrantyCost;
+
+      let profit = costBeforeProfit * getProfitPct(costBeforeProfit, "assembly");
+      if (profit < DB.minProfit) profit = DB.minProfit;
+
+      const finalSale = roundTo(costBeforeProfit + profit, DB.rounding);
+
+      if (input.cell.condition === "مستعملة") {
+        notices.push({ type:"warn", text:"تنبيه: الخلية المختارة مستعملة، لذلك الأداء والعمر الافتراضي أقل من الخلايا الجديدة." });
+      }
+
+      if (Number(input.voltage) > 72) {
+        notices.push({ type:"warn", text:"تم اعتماد ANT BMS 32S 80A تلقائيًا لأن الجهد أعلى من 72V." });
+      }
+
+      if (bms.currentA > Number(input.current)) {
+        notices.push({ type:"ok", text:`تم اختيار BMS بتيار أعلى من المطلوب (${bms.currentA}A).` });
+      }
+
+      const rows = [
+        { title:"نوع العملية", details:"تجميع بطارية جديدة", amount:"-" },
+        { title:"نوع الجهاز", details:getDeviceLabel(input.device), amount:"-" },
+        { title:"اسم البطارية", details:input.name || "-", amount:"-" },
+        { title:"التصنيف", details:sizeLabel(size), amount:"-" },
+        { title:"الكيمياء", details:input.chemistry, amount:"-" },
+        { title:"الجهد", details:`${input.voltage}V`, amount:"-" },
+        { title:"السعة", details:`${input.capacity}Ah`, amount:"-" },
+        { title:"التيار", details:`${input.current}A`, amount:"-" },
+        { title:"الطاقة التقريبية", details:`${packWh.toFixed(1)}Wh`, amount:"-" },
+        { title:"الخلية", details:`${input.cell.name} | ${input.cell.size} | ${input.cell.capacityAh}Ah | ${input.cell.condition}`, amount:cellCost },
+        { title:"عدد السلاسل", details:`اعتماد ${sBase}V لكل خلية`, amount:`${sCount}S` },
+        { title:"عدد التوازي", details:"تم التقريب للأعلى عند الحاجة", amount:`${pCount}P` },
+        { title:"إجمالي الخلايا", details:`${sCount} × ${pCount}`, amount:`${totalCells} خلية` },
+        { title:"BMS", details:`${bms.name} | ${bms.features}`, amount:bmsCost },
+        { title:"النيكل", details:`${nickel.name} | ${nickelM.toFixed(2)} متر`, amount:nickelCost },
+        { title:"السلك", details:`${wire.name} | ${wireM.toFixed(2)} متر`, amount:wireCost },
+        { title:"الكونكتور", details:`${connector.name} | ${connector.unit}`, amount:connectorCost },
+        { title:"ورق العزل", details:`${insulation.name} | ${insM.toFixed(2)} متر`, amount:insCost },
+        { title:"الشرنك", details:`${shrink.name} | ${shrinkM.toFixed(2)} متر`, amount:shrinkCost },
+        { title:"الحوامل", details:spacer ? `${spacer.name} | الكمية ${spacerQty}` : "غير مستخدمة", amount:spacerCost },
+        { title:"الإيبوكسي", details:epoxy ? `${epoxy.name} | الكمية ${epoxyQty}` : "غير مستخدم", amount:epoxyCost },
+        { title:"بدل الضمان", details:input.warranty ? "مضاف" : "غير مضاف", amount:warrantyCost },
+        { title:"سعر التكلفة", details:"مواد + ضمان فقط", amount:costBeforeProfit },
+        { title:"الربح", details:`حسب جدول ربح التجميع | الحد الأدنى ${fmt(DB.minProfit)}`, amount:profit },
+        { title:"سعر البيع النهائي", details:`تم التقريب لأقرب ${DB.rounding}`, amount:finalSale }
+      ];
+
+      return {
+        success:true,
+        mode:"assembly",
+        title:"نتيجة حساب تجميع بطارية جديدة",
+        cost:costBeforeProfit,
+        sale:finalSale,
+        profit:finalSale - costBeforeProfit,
+        rows,
+        notices,
+        pills:[`وضع التجميع`, `${sizeLabel(size)}`, `${input.chemistry}`, `${sCount}S${pCount}P`, `${totalCells} خلية`],
+        meta:{ name: input.name || getDeviceLabel(input.device), deviceLabel: getDeviceLabel(input.device), sizeLabel: sizeLabel(size) }
+      };
+    }
+
+    function calculateMaintenance(input){
+      const notices = [];
+
+      if (!requirePositive(input.voltage)) return { error:"يرجى إدخال فولت البطارية." };
+
+      const size = resolveSize(input.size, input.device, input.voltage, input.capacity || 10);
+      const diagnosis = DB.diagnosisLabor[size];
+
+      if (!input.customerApproved) {
+        const finalSale = Math.max(diagnosis, DB.minServicePrice);
+        return {
+          success:true,
+          mode:"maintenance",
+          title:"نتيجة فحص فقط بدون تنفيذ الصيانة",
+          cost:diagnosis,
+          sale:finalSale,
+          profit:finalSale - diagnosis,
+          notices:[{ type:"warn", text:"الزبون لم يوافق على تنفيذ الصيانة، لذلك تم احتساب أجرة الفحص فقط." }],
+          pills:[`فحص فقط`, `${sizeLabel(size)}`],
+          rows:[
+            { title:"نوع العملية", details:"فحص وتشخيص فقط", amount:"-" },
+            { title:"نوع الجهاز", details:getDeviceLabel(input.device), amount:"-" },
+            { title:"التصنيف", details:sizeLabel(size), amount:"-" },
+            { title:"أجرة الفحص", details:"حسب حجم البطارية", amount:diagnosis },
+            { title:"السعر النهائي", details:"الحد الأدنى للخدمة مطبق عند الحاجة", amount:finalSale }
+          ],
+          meta:{ name: input.name || getDeviceLabel(input.device), deviceLabel: getDeviceLabel(input.device), sizeLabel: sizeLabel(size) }
+        };
+      }
+
+      let partsCost = 0;
+      let laborCost = 0;
+
+      const rows = [
+        { title:"نوع العملية", details:"صيانة بطارية", amount:"-" },
+        { title:"نوع الجهاز", details:getDeviceLabel(input.device), amount:"-" },
+        { title:"اسم البطارية", details:input.name || "-", amount:"-" },
+        { title:"التصنيف", details:sizeLabel(size), amount:"-" },
+        { title:"الكيمياء", details:input.chemistry, amount:"-" },
+        { title:"الجهد", details:`${input.voltage}V`, amount:"-" },
+        { title:"أجرة الفحص", details:"تُخصم من سعر الصيانة عند الموافقة", amount:diagnosis }
+      ];
+
+      if (input.badCellsCount > 0) {
+        if (!input.badCellType) return { error:"يرجى اختيار نوع الخلية البديلة." };
+
+        const cellsCost = input.badCellsCount * input.badCellType.price;
+        const cellLabor = input.badCellsCount * DB.replaceCellLabor[size];
+        partsCost += cellsCost;
+        laborCost += cellLabor;
+
+        rows.push({ title:"تبديل خلايا تالفة", details:`${input.badCellsCount} × ${input.badCellType.name}`, amount:cellsCost });
+        rows.push({ title:"أجور تبديل الخلايا", details:`${input.badCellsCount} × ${fmt(DB.replaceCellLabor[size])}`, amount:cellLabor });
+
+        if (input.badCellType.condition === "مستعملة") {
+          notices.push({ type:"warn", text:"تم اختيار خلايا بديلة مستعملة، لذلك الأداء والعمر الافتراضي أقل من الجديد." });
+        }
+      }
+
+      if (input.replaceBms) {
+        if (!input.bmsType) return { error:"يرجى اختيار نوع BMS البديل." };
+        if (!chemistryCompatible(input.bmsType, input.chemistry)) return { error:"الـ BMS البديل غير متوافق مع كيمياء البطارية." };
+
+        const bmsParts = input.bmsType.price;
+        const bmsLabor = input.bmsType.type === "smart" ? DB.replaceBmsLabor.smart : DB.replaceBmsLabor[size];
+
+        partsCost += bmsParts;
+        laborCost += bmsLabor;
+
+        rows.push({ title:"BMS بديل", details:`${input.bmsType.name} | ${input.bmsType.features}`, amount:bmsParts });
+        rows.push({ title:"أجور تبديل BMS", details:input.bmsType.type === "smart" ? "BMS ذكي" : `حسب الحجم ${sizeLabel(size)}`, amount:bmsLabor });
+      }
+
+      if (input.fullReweld) {
+        laborCost += DB.reweldLabor[size];
+        rows.push({ title:"إعادة تلحيم كامل", details:`حسب الحجم ${sizeLabel(size)}`, amount:DB.reweldLabor[size] });
+      }
+
+      if (input.openClose) {
+        laborCost += DB.openCloseLabor[size];
+        rows.push({ title:"فتح وإغلاق البطارية", details:`حسب الحجم ${sizeLabel(size)}`, amount:DB.openCloseLabor[size] });
+      }
+
+      if (input.rewrap) {
+        laborCost += DB.rewrapLabor[size];
+        rows.push({ title:"إعادة ترتيب وتغليف", details:`حسب الحجم ${sizeLabel(size)}`, amount:DB.rewrapLabor[size] });
+      }
+
+      if (input.programJK) {
+        laborCost += DB.programJKLabor[size];
+        rows.push({ title:"برمجة / إعداد BMS ذكي", details:`حسب الحجم ${sizeLabel(size)}`, amount:DB.programJKLabor[size] });
+      }
+
+      if (input.cleaning) {
+        laborCost += DB.cleaningLabor[size];
+        rows.push({ title:"تنظيف / ترميم بسيط", details:`حسب الحجم ${sizeLabel(size)}`, amount:DB.cleaningLabor[size] });
+      }
+
+      const riskCost = DB.riskByLevel[input.risk];
+      laborCost += riskCost;
+      rows.push({ title:"بدل مخاطرة الصيانة", details:`مستوى ${riskLabel(input.risk)}`, amount:riskCost });
+
+      const warrantyCost = input.warranty ? DB.warrantyBySize[size] : 0;
+      if (warrantyCost) {
+        laborCost += warrantyCost;
+        rows.push({ title:"بدل الضمان", details:`حسب الحجم ${sizeLabel(size)}`, amount:warrantyCost });
+      }
+
+      const costBeforeProfit = Math.max(partsCost + laborCost, DB.minServicePrice);
+
+      let profit = costBeforeProfit * getProfitPct(costBeforeProfit, "maintenance");
+      if (profit < DB.minProfit) profit = DB.minProfit;
+      const finalSale = roundTo(costBeforeProfit + profit, DB.rounding);
+
+      rows.push({ title:"مجموع المواد", details:"الخلايا + BMS + أجزاء الصيانة", amount:partsCost });
+      rows.push({ title:"مجموع أجور العمل", details:"يشمل المخاطرة والضمان عند إضافته", amount:laborCost });
+      rows.push({ title:"سعر التكلفة للصيانة", details:"بعد القواعد المعتمدة", amount:costBeforeProfit });
+      rows.push({ title:"الربح", details:`حسب جدول ربح الصيانة | الحد الأدنى ${fmt(DB.minProfit)}`, amount:profit });
+
+      if (input.compareNew && requirePositive(input.capacity) && requirePositive(input.current) && input.compareCell) {
+        const comp = calculateAssembly({
+          device: input.device,
+          name: `بطارية جديدة مماثلة`,
+          chemistry: input.chemistry,
+          voltage: Number(input.voltage),
+          capacity: Number(input.capacity),
+          current: Number(input.current),
+          size: input.size,
+          cell: input.compareCell,
+          warranty: input.warranty,
+          smartBms: Boolean(Number(input.compareSmart)),
+          useSpacers: true,
+          useEpoxy: Boolean(Number(input.compareEpoxy)),
+          manualNickel:null,
+          manualWire:null,
+          manualConnector:null,
+          manualInsulation:null,
+          manualShrink:null,
+          manualSpacer:null,
+          manualEpoxy:null,
+          manualBms:null
+        });
+
+        if (comp.success) {
+          rows.push({ title:"سعر بطارية جديدة مماثلة", details:"للمقارنة فقط", amount:comp.sale });
+
+          if (finalSale > comp.sale * 0.8) {
+            notices.push({ type:"warn", text:"كلفة الصيانة تجاوزت 80% من سعر بطارية جديدة مماثلة، والأفضل غالبًا اقتراح بطارية جديدة." });
+          } else {
+            notices.push({ type:"ok", text:"الصيانة ما زالت اقتصادية مقارنة ببطارية جديدة مماثلة." });
+          }
+        }
+      }
+
+      rows.push({ title:"السعر النهائي للصيانة", details:`تم التقريب لأقرب ${DB.rounding}`, amount:finalSale });
+
+      return {
+        success:true,
+        mode:"maintenance",
+        title:"نتيجة حساب صيانة بطارية",
+        cost:costBeforeProfit,
+        sale:finalSale,
+        profit:finalSale - costBeforeProfit,
+        rows,
+        notices,
+        pills:[`وضع الصيانة`, `${sizeLabel(size)}`, `${input.chemistry}`, `مخاطرة ${riskLabel(input.risk)}`],
+        meta:{ name: input.name || getDeviceLabel(input.device), deviceLabel: getDeviceLabel(input.device), sizeLabel: sizeLabel(size) }
+      };
+    }
+
+    function fillDeviceSelect(id){
+      const el = document.getElementById(id);
+      el.innerHTML = DB.devices.map(d => `<option value="${d.value}">${d.label}</option>`).join("");
+    }
+
+    function fillCellsSelect(id, withEmpty=false){
+      const el = document.getElementById(id);
+      el.innerHTML = (withEmpty ? `<option value="">-- اختر --</option>` : "") + DB.cells.map(c => `
+        <option value="${c.id}">${c.name} | ${c.chemistry} | ${c.size} | ${c.capacityAh}Ah | ${fmt(c.price)} | ${c.condition}</option>
+      `).join("");
+    }
+
+    function fillSelectWithAuto(id, list, labelFn){
+      const el = document.getElementById(id);
+      el.innerHTML = `<option value="">تلقائي</option>` + list.map(item => `<option value="${item.id}">${labelFn(item)}</option>`).join("");
+    }
+
+    function initSelects(){
+      fillDeviceSelect("a_device");
+      fillDeviceSelect("m_device");
+      fillCellsSelect("a_cell");
+      fillCellsSelect("m_badCellType", true);
+      fillCellsSelect("m_compareCell", true);
+
+      fillSelectWithAuto("a_manualNickel", DB.nickel, n => `${n.name} | ${fmt(n.pricePerM)}/م`);
+      fillSelectWithAuto("a_manualWire", DB.wires, w => `${w.name} | ${fmt(w.pricePerM)}/م`);
+      fillSelectWithAuto("a_manualConnector", DB.connectors, c => `${c.name} | ${fmt(c.price)}`);
+      fillSelectWithAuto("a_manualInsulation", DB.insulation, i => `${i.name} | ${fmt(i.pricePerM)}/م`);
+      fillSelectWithAuto("a_manualShrink", DB.shrink, s => `${s.name} | ${fmt(s.pricePerM)}/م`);
+      fillSelectWithAuto("a_manualSpacer", DB.spacers, s => `${s.name} | ${fmt(s.price)}`);
+      fillSelectWithAuto("a_manualEpoxy", DB.epoxy, e => `${e.name} | ${fmt(e.price)}`);
+      fillSelectWithAuto("a_manualBms", DB.bms, b => `${b.name} | ${fmt(b.price)}`);
+
+      document.getElementById("m_bmsType").innerHTML =
+        `<option value="">-- اختر --</option>` +
+        DB.bms.map(b => `<option value="${b.id}">${b.name} | ${fmt(b.price)} | ${b.features}</option>`).join("");
+
+      fillDbManagerSelects();
+      renderDbList();
+      renderProfitRulesEditor();
+    }
+
+    function fillDbManagerSelects(){
+      const categoryMap = [
+        { key:"cells", label:"الخلايا" },
+        { key:"bms", label:"BMS" },
+        { key:"nickel", label:"النيكل" },
+        { key:"insulation", label:"العزل" },
+        { key:"shrink", label:"الشرنك" },
+        { key:"wires", label:"الأسلاك" },
+        { key:"connectors", label:"الكونكتورات" },
+        { key:"spacers", label:"الحوامل" },
+        { key:"epoxy", label:"الإيبوكسي" }
+      ];
+
+      const catEl = document.getElementById("dbCategorySelect");
+      catEl.innerHTML = categoryMap.map(c => `<option value="${c.key}">${c.label}</option>`).join("");
+      refreshDbItemSelect();
+    }
+
+    function refreshDbItemSelect(){
+      const category = document.getElementById("dbCategorySelect").value;
+      const itemEl = document.getElementById("dbItemSelect");
+      const list = DB[category] || [];
+      itemEl.innerHTML = list.map(item => `<option value="${item.id}">${item.name}</option>`).join("");
+      updateDbItemInfo();
+    }
+
+    function getItemPriceField(category){
+      const fields = {
+        cells:"price",
+        bms:"price",
+        nickel:"pricePerM",
+        insulation:"pricePerM",
+        shrink:"pricePerM",
+        wires:"pricePerM",
+        connectors:"price",
+        spacers:"price",
+        epoxy:"price"
+      };
+      return fields[category];
+    }
+
+    function updateDbItemInfo(){
+      const category = document.getElementById("dbCategorySelect").value;
+      const itemId = document.getElementById("dbItemSelect").value;
+      const list = DB[category] || [];
+      const item = list.find(x => x.id === itemId);
+      const infoEl = document.getElementById("dbItemInfo");
+      const priceField = getItemPriceField(category);
+
+      if(!item){
+        infoEl.textContent = "اختر قسمًا وعنصرًا لعرض المعلومات.";
+        return;
+      }
+
+      infoEl.innerHTML = `
+        <strong>${item.name}</strong><br>
+        الحقل السعري: ${priceField}<br>
+        السعر الحالي: ${fmt(item[priceField])}
+      `;
+    }
+
+    function renderDbList(){
+      const listEl = document.getElementById("dbList");
+      const search = (document.getElementById("dbSearch").value || "").trim().toLowerCase();
+
+      const all = [];
+      ["cells","bms","nickel","insulation","shrink","wires","connectors","spacers","epoxy"].forEach(category => {
+        (DB[category] || []).forEach(item => {
+          const priceField = getItemPriceField(category);
+          all.push({
+            category,
+            item,
+            priceField,
+            price: item[priceField]
+          });
+        });
+      });
+
+      const filtered = search
+        ? all.filter(x => `${x.item.name} ${x.category}`.toLowerCase().includes(search))
+        : all;
+
+      document.getElementById("dbSummary").textContent = `عدد العناصر السعرية الحالية: ${filtered.length}`;
+
+      if(!filtered.length){
+        listEl.innerHTML = `<div class="empty-box">لا توجد نتائج في قاعدة الأسعار.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(x => `
+        <div class="db-item">
+          <h4>${x.item.name}</h4>
+          <div class="db-meta">
+            القسم: ${arabicCategoryName(x.category)}<br>
+            السعر الحالي: ${fmt(x.price)}
+          </div>
+          <div class="db-actions">
+            <button class="btn light" onclick="openDbModalAndSelect('${x.category}','${x.item.id}')">تعديل</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function arabicCategoryName(cat){
+      const map = {
+        cells:"الخلايا",
+        bms:"BMS",
+        nickel:"النيكل",
+        insulation:"العزل",
+        shrink:"الشرنك",
+        wires:"الأسلاك",
+        connectors:"الكونكتورات",
+        spacers:"الحوامل",
+        epoxy:"الإيبوكسي"
+      };
+      return map[cat] || cat;
+    }
+
+    function renderProfitRulesEditor(){
+      const mode = document.getElementById("profitModeSelect")?.value || "assembly";
+      const container = document.getElementById("profitRulesEditor");
+      if (!container) return;
+
+      const rules = getProfitRulesByMode(mode);
+
+      container.innerHTML = `
+        <div class="small-muted" style="margin-bottom:10px">
+          النسبة تُكتب كرقم فقط، مثال: 45 يعني 45%
+        </div>
+
+        <table class="breakdown">
+          <thead>
+            <tr>
+              <th>من</th>
+              <th>إلى</th>
+              <th>نسبة الربح %</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rules.map((rule, index) => `
+              <tr>
+                <td><input type="number" min="0" step="1" id="profit_min_${index}" value="${rule.min}"></td>
+                <td><input type="text" id="profit_max_${index}" value="${rule.max === Infinity ? 'Infinity' : rule.max}"></td>
+                <td><input type="number" min="0" step="0.01" id="profit_pct_${index}" value="${rule.pct * 100}"></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function saveProfitRulesFromEditor(){
+      const mode = document.getElementById("profitModeSelect")?.value || "assembly";
+      const currentRules = getProfitRulesByMode(mode);
+      const nextRules = [];
+
+      for(let i = 0; i < currentRules.length; i++){
+        const minVal = Number(document.getElementById(`profit_min_${i}`).value);
+        const maxRaw = document.getElementById(`profit_max_${i}`).value.trim();
+        const pctVal = Number(document.getElementById(`profit_pct_${i}`).value);
+
+        if (Number.isNaN(minVal) || Number.isNaN(pctVal)) {
+          alert("يرجى إدخال قيم صحيحة في جدول الربح.");
+          return;
+        }
+
+        let maxVal;
+        if (maxRaw === "Infinity" || maxRaw === "∞" || maxRaw === "") {
+          maxVal = Infinity;
+        } else {
+          maxVal = Number(maxRaw);
+          if (Number.isNaN(maxVal)) {
+            alert("قيمة الحد الأعلى غير صحيحة.");
+            return;
+          }
+        }
+
+        nextRules.push({
+          min: minVal,
+          max: maxVal,
+          pct: pctVal / 100
+        });
+      }
+
+      nextRules.sort((a,b) => a.min - b.min);
+
+      if (mode === "maintenance") {
+        DB.maintenanceProfitRules = nextRules;
+      } else {
+        DB.assemblyProfitRules = nextRules;
+      }
+
+      saveDB();
+      alert("تم حفظ نسب الربح بنجاح.");
+      renderProfitRulesEditor();
+    }
+
+    function readAssemblyInput(){
+      return {
+        device: document.getElementById("a_device").value,
+        name: document.getElementById("a_name").value.trim(),
+        chemistry: document.getElementById("a_chem").value,
+        voltage: Number(document.getElementById("a_voltage").value),
+        capacity: Number(document.getElementById("a_capacity").value),
+        current: Number(document.getElementById("a_current").value),
+        size: document.getElementById("a_size").value,
+        cell: getSelectedById(DB.cells, document.getElementById("a_cell").value),
+        warranty: document.getElementById("a_warranty").checked,
+        smartBms: document.getElementById("a_smartBms").checked,
+        useSpacers: document.getElementById("a_useSpacers").checked,
+        useEpoxy: document.getElementById("a_useEpoxy").checked,
+        notes: document.getElementById("a_notes").value.trim(),
+        manualNickel: getSelectedById(DB.nickel, document.getElementById("a_manualNickel").value),
+        manualWire: getSelectedById(DB.wires, document.getElementById("a_manualWire").value),
+        manualConnector: getSelectedById(DB.connectors, document.getElementById("a_manualConnector").value),
+        manualInsulation: getSelectedById(DB.insulation, document.getElementById("a_manualInsulation").value),
+        manualShrink: getSelectedById(DB.shrink, document.getElementById("a_manualShrink").value),
+        manualSpacer: getSelectedById(DB.spacers, document.getElementById("a_manualSpacer").value),
+        manualEpoxy: getSelectedById(DB.epoxy, document.getElementById("a_manualEpoxy").value),
+        manualBms: getSelectedById(DB.bms, document.getElementById("a_manualBms").value)
+      };
+    }
+
+    function readMaintenanceInput(){
+      return {
+        device: document.getElementById("m_device").value,
+        name: document.getElementById("m_name").value.trim(),
+        chemistry: document.getElementById("m_chem").value,
+        voltage: Number(document.getElementById("m_voltage").value),
+        capacity: Number(document.getElementById("m_capacity").value),
+        current: Number(document.getElementById("m_current").value),
+        size: document.getElementById("m_size").value,
+        risk: document.getElementById("m_risk").value,
+        customerApproved: document.getElementById("m_customerApproved").checked,
+        warranty: document.getElementById("m_warranty").checked,
+        compareNew: document.getElementById("m_compareNew").checked,
+        badCellsCount: Number(document.getElementById("m_badCellsCount").value),
+        badCellType: getSelectedById(DB.cells, document.getElementById("m_badCellType").value),
+        replaceBms: document.getElementById("m_replaceBms").checked,
+        bmsType: getSelectedById(DB.bms, document.getElementById("m_bmsType").value),
+        fullReweld: document.getElementById("m_fullReweld").checked,
+        openClose: document.getElementById("m_openClose").checked,
+        rewrap: document.getElementById("m_rewrap").checked,
+        programJK: document.getElementById("m_programJK").checked,
+        cleaning: document.getElementById("m_cleaning").checked,
+        compareCell: getSelectedById(DB.cells, document.getElementById("m_compareCell").value),
+        compareSmart: document.getElementById("m_compareSmart").value,
+        compareEpoxy: document.getElementById("m_compareEpoxy").value,
+        notes: document.getElementById("m_notes").value.trim()
+      };
+    }
+
+    function resetAssemblyForm(){
+      document.getElementById("a_name").value = "";
+      document.getElementById("a_chem").value = "Li-ion";
+      document.getElementById("a_voltage").value = "";
+      document.getElementById("a_capacity").value = "";
+      document.getElementById("a_current").value = "";
+      document.getElementById("a_size").value = "auto";
+      document.getElementById("a_warranty").checked = false;
+      document.getElementById("a_smartBms").checked = false;
+      document.getElementById("a_useSpacers").checked = true;
+      document.getElementById("a_useEpoxy").checked = false;
+      document.getElementById("a_notes").value = "";
+      [
+        "a_manualNickel","a_manualWire","a_manualConnector","a_manualInsulation",
+        "a_manualShrink","a_manualSpacer","a_manualEpoxy","a_manualBms"
+      ].forEach(id => document.getElementById(id).value = "");
+    }
+
+    function resetMaintenanceForm(){
+      document.getElementById("m_name").value = "";
+      document.getElementById("m_chem").value = "Li-ion";
+      document.getElementById("m_voltage").value = "";
+      document.getElementById("m_capacity").value = "";
+      document.getElementById("m_current").value = "";
+      document.getElementById("m_size").value = "auto";
+      document.getElementById("m_risk").value = "low";
+      document.getElementById("m_customerApproved").checked = true;
+      document.getElementById("m_warranty").checked = false;
+      document.getElementById("m_compareNew").checked = true;
+      document.getElementById("m_badCellsCount").value = 0;
+      document.getElementById("m_badCellType").value = "";
+      document.getElementById("m_replaceBms").checked = false;
+      document.getElementById("m_bmsType").value = "";
+      document.getElementById("m_fullReweld").checked = false;
+      document.getElementById("m_openClose").checked = false;
+      document.getElementById("m_rewrap").checked = false;
+      document.getElementById("m_programJK").checked = false;
+      document.getElementById("m_cleaning").checked = false;
+      document.getElementById("m_compareCell").value = "";
+      document.getElementById("m_compareSmart").value = "0";
+      document.getElementById("m_compareEpoxy").value = "0";
+      document.getElementById("m_notes").value = "";
+    }
+
+    async function exportResultAsImage(){
+      const captureEl = document.getElementById("resultCapture");
+      const canvas = await html2canvas(captureEl, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true
+      });
+
+      const link = document.createElement("a");
+      const now = new Date();
+      const fileName = `almadar-result-${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}.png`;
+      link.download = fileName;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
+
+    function getHistory(){
+      try{
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      }catch{
+        return [];
+      }
+    }
+
+    function setHistory(data){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function saveCurrentOperation(mode){
+      if (!lastResult || !lastResult.success || lastResult.mode !== mode) {
+        alert("احسب النتيجة أولًا ثم احفظها.");
+        return;
+      }
+
+      const payload = {
+        id: Date.now().toString(),
+        mode,
+        createdAt: new Date().toLocaleString("ar-IQ"),
+        title: lastResult.title,
+        cost: lastResult.cost,
+        sale: lastResult.sale,
+        profit: lastResult.profit,
+        pills: lastResult.pills || [],
+        notices: lastResult.notices || [],
+        rows: lastResult.rows || [],
+        meta: lastResult.meta || {}
+      };
+
+      const history = getHistory();
+      history.unshift(payload);
+      setHistory(history);
+      renderHistory();
+      alert("تم حفظ العملية في سجل العمليات.");
+    }
+
+    function loadSavedOperation(id){
+      const item = getHistory().find(x => x.id === id);
+      if (!item) return;
+      goToPage("calculatorPage");
+      renderResult(item);
+    }
+
+    function deleteHistoryItem(id){
+      const next = getHistory().filter(x => x.id !== id);
+      setHistory(next);
+      renderHistory();
+    }
+
+    function clearAllHistory(){
+      if (!confirm("هل تريد حذف سجل العمليات كاملًا؟")) return;
+      setHistory([]);
+      renderHistory();
+    }
+
+    function renderHistory(){
+      const listEl = document.getElementById("historyList");
+      const keyword = (document.getElementById("historySearch").value || "").trim().toLowerCase();
+      let items = getHistory();
+
+      if (keyword) {
+        items = items.filter(item => {
+          const hay = [
+            item.title,
+            item.mode === "assembly" ? "تجميع" : "صيانة",
+            item.meta?.name,
+            item.meta?.deviceLabel,
+            item.meta?.sizeLabel
+          ].join(" ").toLowerCase();
+          return hay.includes(keyword);
+        });
+      }
+
+      if (!items.length) {
+        listEl.innerHTML = `<div class="empty-box">لا توجد عمليات محفوظة.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = items.map(item => `
+        <div class="history-item">
+          <h4>${item.meta?.name || item.title || "عملية محفوظة"}</h4>
+          <div class="history-meta">
+            الوضع: ${item.mode === "assembly" ? "تجميع" : "صيانة"}<br>
+            النوع: ${item.meta?.deviceLabel || "-"}<br>
+            الحجم: ${item.meta?.sizeLabel || "-"}<br>
+            التكلفة: ${fmt(item.cost)} | البيع: ${fmt(item.sale)} | الربح: ${fmt(item.profit)}<br>
+            التاريخ: ${item.createdAt || "-"}
+          </div>
+          <div class="history-actions">
+            <button class="btn light" onclick="loadSavedOperation('${item.id}')">عرض</button>
+            <button class="btn danger" onclick="deleteHistoryItem('${item.id}')">حذف</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function exportHistoryBackup(){
+      const payload = {
+        type: "almadar-history-backup",
+        version: 6,
+        exportedAt: new Date().toISOString(),
+        history: getHistory()
+      };
+      downloadJson(payload, "almadar-history-backup.json");
+    }
+
+    function importHistoryBackupFromFile(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const parsed = JSON.parse(reader.result);
+          if (!parsed || !Array.isArray(parsed.history)) {
+            alert("ملف النسخة الاحتياطية غير صالح.");
+            return;
+          }
+          setHistory(parsed.history);
+          renderHistory();
+          alert("تم استيراد سجل العمليات بنجاح.");
+        }catch{
+          alert("تعذر قراءة ملف JSON.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function downloadJson(obj, fileName){
+      const blob = new Blob([JSON.stringify(obj, null, 2)], { type:"application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function goToPage(pageId){
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById(pageId).classList.add("active");
+
+      pageTabs.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.page === pageId);
+      });
+    }
+
+    function switchMode(mode){
+      currentMode = mode;
+      subTabs.forEach(btn => btn.classList.toggle("active", btn.dataset.mode === mode));
+      document.getElementById("assemblyForm").classList.toggle("hidden", mode !== "assembly");
+      document.getElementById("maintenanceForm").classList.toggle("hidden", mode !== "maintenance");
+    }
+
+    function openDbModal(){
+      document.getElementById("dbModalBackdrop").classList.add("show");
+      updateDbJsonBox();
+      updateDbItemInfo();
+    }
+
+    function closeDbModal(){
+      document.getElementById("dbModalBackdrop").classList.remove("show");
+    }
+
+    function openDbModalAndSelect(category, itemId){
+      goToPage("databasePage");
+      openDbModal();
+      document.getElementById("dbCategorySelect").value = category;
+      refreshDbItemSelect();
+      document.getElementById("dbItemSelect").value = itemId;
+      updateDbItemInfo();
+    }
+
+    function loadCurrentDbPrice(){
+      const category = document.getElementById("dbCategorySelect").value;
+      const itemId = document.getElementById("dbItemSelect").value;
+      const list = DB[category] || [];
+      const item = list.find(x => x.id === itemId);
+      const field = getItemPriceField(category);
+      if (!item) return;
+      document.getElementById("dbNewPrice").value = item[field] || 0;
+      updateDbItemInfo();
+    }
+
+    function saveDbPrice(){
+      const category = document.getElementById("dbCategorySelect").value;
+      const itemId = document.getElementById("dbItemSelect").value;
+      const newPrice = Number(document.getElementById("dbNewPrice").value);
+      const field = getItemPriceField(category);
+      const list = DB[category] || [];
+      const item = list.find(x => x.id === itemId);
+
+      if (!item) {
+        alert("لم يتم العثور على العنصر.");
+        return;
+      }
+      if (newPrice < 0 || Number.isNaN(newPrice)) {
+        alert("أدخل سعرًا صحيحًا.");
+        return;
+      }
+
+      item[field] = newPrice;
+      saveDB();
+      initSelects();
+      updateDbJsonBox();
+      updateDbItemInfo();
+      alert("تم حفظ السعر الجديد.");
+    }
+
+    function resetDBToDefault(){
+      if (!confirm("هل تريد إعادة كل الأسعار والنسب إلى القيم الأصلية؟")) return;
+      DB = deepClone(DEFAULT_DB);
+      saveDB();
+      initSelects();
+      alert("تمت إعادة قاعدة الأسعار إلى الأصل.");
+    }
+
+    function updateDbJsonBox(){
+      document.getElementById("dbJsonBox").value = JSON.stringify(DB, null, 2);
+    }
+
+    function exportDbJson(){
+      downloadJson(DB, "almadar-db-backup.json");
+    }
+
+    function importDbJson(){
+      const raw = document.getElementById("dbJsonBox").value.trim();
+      if (!raw) {
+        alert("الصندوق فارغ.");
+        return;
+      }
+      try{
+        const parsed = JSON.parse(raw);
+        if (!parsed.cells || !parsed.bms) {
+          alert("ملف قاعدة البيانات غير صالح.");
+          return;
+        }
+        DB = parsed;
+        if (!DB.assemblyProfitRules) DB.assemblyProfitRules = deepClone(DEFAULT_DB.assemblyProfitRules);
+        if (!DB.maintenanceProfitRules) DB.maintenanceProfitRules = deepClone(DEFAULT_DB.maintenanceProfitRules);
+        saveDB();
+        initSelects();
+        closeDbModal();
+        alert("تم استيراد قاعدة الأسعار بنجاح.");
+      }catch{
+        alert("JSON غير صالح.");
+      }
+    }
+
+    pageTabs.forEach(btn => {
+      btn.addEventListener("click", () => goToPage(btn.dataset.page));
+    });
+
+    subTabs.forEach(btn => {
+      btn.addEventListener("click", () => switchMode(btn.dataset.mode));
+    });
+
+    document.getElementById("assemblyCalcBtn").addEventListener("click", () => {
+      renderResult(calculateAssembly(readAssemblyInput()));
+    });
+
+    document.getElementById("maintenanceCalcBtn").addEventListener("click", () => {
+      renderResult(calculateMaintenance(readMaintenanceInput()));
+    });
+
+    document.getElementById("saveAssemblyBtn").addEventListener("click", () => saveCurrentOperation("assembly"));
+    document.getElementById("saveMaintenanceBtn").addEventListener("click", () => saveCurrentOperation("maintenance"));
+    document.getElementById("assemblyResetBtn").addEventListener("click", resetAssemblyForm);
+    document.getElementById("maintenanceResetBtn").addEventListener("click", resetMaintenanceForm);
+    document.getElementById("clearResultBtn").addEventListener("click", clearResult);
+    document.getElementById("exportImageBtn").addEventListener("click", exportResultAsImage);
+
+    document.getElementById("refreshHistoryBtn").addEventListener("click", renderHistory);
+    document.getElementById("clearHistoryBtn").addEventListener("click", clearAllHistory);
+    document.getElementById("historySearch").addEventListener("input", renderHistory);
+    document.getElementById("exportBackupBtn").addEventListener("click", exportHistoryBackup);
+    document.getElementById("importBackupBtn").addEventListener("click", () => document.getElementById("backupFileInput").click());
+    document.getElementById("backupFileInput").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) importHistoryBackupFromFile(file);
+      e.target.value = "";
+    });
+
+    document.getElementById("openDbManagerBtn").addEventListener("click", openDbModal);
+    document.getElementById("openDbManagerBtn2").addEventListener("click", openDbModal);
+    document.getElementById("closeDbModalBtn").addEventListener("click", closeDbModal);
+    document.getElementById("dbCategorySelect").addEventListener("change", refreshDbItemSelect);
+    document.getElementById("dbItemSelect").addEventListener("change", updateDbItemInfo);
+    document.getElementById("loadDbItemPriceBtn").addEventListener("click", loadCurrentDbPrice);
+    document.getElementById("saveDbPriceBtn").addEventListener("click", saveDbPrice);
+    document.getElementById("exportDbJsonBtn").addEventListener("click", exportDbJson);
+    document.getElementById("exportDbDirectBtn").addEventListener("click", exportDbJson);
+    document.getElementById("importDbJsonBtn").addEventListener("click", importDbJson);
+    document.getElementById("resetDbBtn").addEventListener("click", resetDBToDefault);
+    document.getElementById("refreshDbBtn").addEventListener("click", renderDbList);
+    document.getElementById("dbSearch").addEventListener("input", renderDbList);
+
+    document.getElementById("profitModeSelect").addEventListener("change", renderProfitRulesEditor);
+    document.getElementById("saveProfitRulesBtn").addEventListener("click", saveProfitRulesFromEditor);
+    document.getElementById("reloadProfitRulesBtn").addEventListener("click", renderProfitRulesEditor);
+
+    document.getElementById("dbModalBackdrop").addEventListener("click", (e) => {
+      if (e.target.id === "dbModalBackdrop") closeDbModal();
+    });
+
+    initSelects();
+    goToPage("calculatorPage");
+    switchMode("assembly");
+    clearResult();
+    renderHistory();
+
+    window.loadSavedOperation = loadSavedOperation;
+    window.deleteHistoryItem = deleteHistoryItem;
+    window.openDbModalAndSelect = openDbModalAndSelect;
+  </script>
+</body>
+</html>
